@@ -170,8 +170,8 @@ def generate_certificate(name, course, date):
     html_content = html_content.replace("{{date}}", date)
     try:
         # Generate the certificate as a PDF file
-        pdfkit.from_string(html_content, "certificate3.pdf", options=options)
-        return "success"
+        pdf = pdfkit.from_string(html_content, False)
+        return pdf
     except Exception as e:
         # Handle the exception (failed to generate the PDF)
 
