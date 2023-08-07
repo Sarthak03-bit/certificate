@@ -175,6 +175,15 @@ def get_certificate(request):
         'orientation': 'Landscape'
     }
     # Replace the placeholders
+    serializer = CertificateSerializer(data=request.data)
+    fail_data = {
+        "status": "failed",
+        "code": 400,
+        "message": "BAD REQUEST",
+        "data": {}
+    }
+    if not serializer.is_valid():
+        return Response(fail_data, status=status.HTTP_400_BAD_REQUEST)
     data = request.data
     name = data.get('Name')
     course = str(data.get('Course'))
