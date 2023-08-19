@@ -3,15 +3,19 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import CertificateSerializer
-from .html_to_pdf import generate_certificate
 from django.utils import timezone
 import pdfkit
 from django.http import HttpResponse
 
 
-@api_view(['POST'])
-def get_certificate(request):
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
+
+@api_view(['GET'])
+def get_certificate(request):
     html_content = """
   <style type="text/css">
     body,
@@ -182,7 +186,10 @@ def get_certificate(request):
         "message": "BAD REQUEST",
         "data": {}
     }
+    print(request.data)
+
     if not serializer.is_valid():
+        print(serializer.errors)
         return Response(fail_data, status=status.HTTP_400_BAD_REQUEST)
     data = request.data
     name = data.get('Name')
@@ -196,12 +203,16 @@ def get_certificate(request):
     html_content = html_content.replace("{{date}}", todays_date_str)
 
     pdf = pdfkit.from_string(html_content, False, options=options)
-    # headers = {
-    #    'Content-Type': 'application/pdf',
-    #    'Content-Disposition': 'attachment; filename=certificate.pdf'
-    # }
 
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=certificate.pdf'
 
     return response
+
+
+class ProtectedView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self):
+        return Response({"message": "Authenticated user content"})

@@ -16,8 +16,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from certificate import views
+from .views import ProtectedView
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('certificate/', views.get_certificate)
+    path('certificate/', views.get_certificate),
+    path('token/', TokenObtainPairView.as_view(), name='token-obtain-pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
+    path('protected/', ProtectedView.as_view(), name='protected-view')
 ]
